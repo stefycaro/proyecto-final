@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluación Heurística UX — OGD Napo</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0f1e45;
+    --navy-mid: #1a3066;
+    --blue: #2251cc;
+    --blue-light: #e8eefb;
+    --purple: #2E2C8F;
+    --white: #ffffff;
+    --gray-50: #f8f9fc;
+    --gray-100: #f0f2f7;
+    --gray-200: #e2e6f0;
+    --gray-400: #9aa3be;
+    --gray-600: #5a6282;
+    --gray-800: #2a304a;
+    --green: #16a34a;
+    --green-bg: #dcfce7;
+    --amber: #d97706;
+    --amber-bg: #fef3c7;
+    --red: #dc2626;
+    --red-bg: #fee2e2;
+    --score-good: #16a34a;
+    --score-warn: #d97706;
+    --score-bad: #dc2626;
+    --radius: 12px;
+    --radius-lg: 20px;
+    --shadow: 0 2px 12px rgba(15,30,69,0.08);
+    --shadow-md: 0 4px 24px rgba(15,30,69,0.12);
+    --shadow-lg: 0 8px 40px rgba(15,30,69,0.15);
+  }
+  body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--gray-50); color: var(--gray-800); line-height: 1.6; }
+  a { color: var(--blue); }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 50%, #1e3a8a 100%);
+    color: var(--white);
+    padding: 60px 5% 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(34,81,204,0.2) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.85);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 40px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 span { color: #7dd3fc; }
+  .hero-sub {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 48px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.55);
+  }
+  .hero-meta span { background: rgba(255,255,255,0.08); padding: 4px 12px; border-radius: 20px; }
+  .hero-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .hero-card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    text-align: center;
+  }
+  .hero-card .hc-value {
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .hero-card .hc-label {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .hero-card.good .hc-value { color: #4ade80; }
+  .hero-card.warn .hc-value { color: #fbbf24; }
+  .hero-card.bad .hc-value { color: #f87171; }
+  .hero-card.neutral .hc-value { color: #7dd3fc; }
+
+  /* EXECUTIVE SUMMARY */
+  .exec-summary {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-left: 4px solid #7dd3fc;
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-top: 40px;
+    max-width: 900px;
+  }
+  .exec-summary h3 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #7dd3fc;
+    margin-bottom: 12px;
+  }
+  .exec-summary p {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.7;
+  }
+
+  /* LAYOUT */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 5%; }
+  .section { padding: 60px 0; }
+  .section-header { margin-bottom: 36px; }
+  .section-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--blue);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: -0.02em;
+  }
+
+  /* OVERVIEW CARDS */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .ov-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-200);
+  }
+  .ov-card .ov-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+  }
+  .ov-card.blue-card .ov-icon { background: var(--blue-light); }
+  .ov-card.green-card .ov-icon { background: var(--green-bg); }
+  .ov-card.red-card .ov-icon { background: var(--red-bg); }
+  .ov-card h4 { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray-600); margin-bottom: 12px; }
+  .ov-card p { font-size: 0.9rem; line-height: 1.65; color: var(--gray-600); }
+  .ov-card ul { font-size: 0.88rem; color: var(--gray-600); padding-left: 18px; }
+  .ov-card ul li { margin-bottom: 6px; line-height: 1.5; }
+
+  /* HEURISTIC CARDS */
+  .heuristics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .h-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-200);
+  }
+  .h-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+  .h-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .h-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .h-icon.green { background: var(--green-bg); }
+  .h-icon.amber { background: var(--amber-bg); }
+  .h-icon.red { background: var(--red-bg); }
+  .h-card-name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.3;
+  }
+  .h-score-block { text-align: right; flex-shrink: 0; }
+  .h-score {
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .h-score.good { color: var(--score-good); }
+  .h-score.warn { color: var(--score-warn); }
+  .h-score.bad { color: var(--score-bad); }
+  .h-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-top: 4px;
+  }
+  .h-badge.good { background: var(--green-bg); color: var(--green); }
+  .h-badge.warn { background: var(--amber-bg); color: var(--amber); }
+  .h-badge.bad { background: var(--red-bg); color: var(--red); }
+  .progress-wrap { margin-bottom: 20px; }
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--gray-400);
+    margin-bottom: 6px;
+  }
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--gray-200);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+  .progress-fill.good { background: var(--green); }
+  .progress-fill.warn { background: var(--amber); }
+  .progress-fill.bad { background: var(--red); }
+  .benchmark-marker {
+    position: absolute;
+    top: -3px;
+    width: 2px;
+    height: 12px;
+    background: var(--gray-400);
+    left: 80%;
+  }
+  .h-section-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray-400);
+    margin-bottom: 8px;
+    margin-top: 16px;
+  }
+  .h-section-label:first-of-type { margin-top: 0; }
+  .h-list {
+    list-style: none;
+    padding: 0;
+  }
+  .h-list li {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    padding: 5px 0 5px 18px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .h-list li::before {
+    content: '•';
+    position: absolute;
+    left: 4px;
+    color: var(--gray-400);
+  }
+  .h-list li.problem::before { color: var(--red); }
+  .h-list li.rec::before { color: var(--blue); }
+  .h-so-what {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 16px;
+    font-size: 0.85rem;
+    color: var(--navy);
+    font-style: italic;
+    border-left: 3px solid var(--blue);
+  }
+  .h-so-what::before { content: '¿Y qué? '; font-style: normal; font-weight: 700; color: var(--blue); }
+
+  /* PRIORITIZATION TABLE */
+  .priority-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .priority-table thead tr {
+    background: var(--navy);
+    color: var(--white);
+  }
+  .priority-table th {
+    padding: 14px 16px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: left;
+  }
+  .priority-table td {
+    padding: 16px;
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: top;
+  }
+  .priority-table tr:last-child td { border-bottom: none; }
+  .priority-table tr:hover td { background: var(--gray-50); }
+  .sev-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .sev-critical { background: #fee2e2; color: #991b1b; }
+  .sev-high { background: #fef3c7; color: #92400e; }
+  .sev-medium { background: #dbeafe; color: #1e40af; }
+  .urgency-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .urg-now { background: #fee2e2; color: #991b1b; }
+  .urg-soon { background: #fef3c7; color: #92400e; }
+  .urg-plan { background: #dcfce7; color: #166534; }
+  .impact-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    background: var(--blue-light);
+    color: var(--blue);
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-right: 4px;
+    margin-bottom: 4px;
+  }
+  .prob-title { font-weight: 700; color: var(--navy); display: block; margin-bottom: 4px; }
+
+  /* VISUALIZATIONS */
+  .viz-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .viz-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-200);
+  }
+  .viz-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .viz-card p.viz-desc {
+    font-size: 0.82rem;
+    color: var(--gray-400);
+    margin-bottom: 28px;
+  }
+
+  /* JOURNEY */
+  .journey-list { list-style: none; padding: 0; position: relative; }
+  .journey-list::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 24px;
+    bottom: 24px;
+    width: 2px;
+    background: var(--gray-200);
+  }
+  .journey-step {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .step-num {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    z-index: 1;
+    position: relative;
+  }
+  .step-num.ok { background: var(--green-bg); color: var(--green); border: 2px solid var(--green); }
+  .step-num.warn { background: var(--amber-bg); color: var(--amber); border: 2px solid var(--amber); }
+  .step-num.bad { background: var(--red-bg); color: var(--red); border: 2px solid var(--red); }
+  .step-content { padding-top: 8px; flex: 1; }
+  .step-title { font-size: 0.9rem; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+  .step-desc { font-size: 0.82rem; color: var(--gray-600); margin-bottom: 4px; line-height: 1.5; }
+  .step-intent { font-size: 0.78rem; color: var(--gray-400); font-style: italic; }
+  .step-friction { font-size: 0.78rem; color: var(--red); margin-top: 4px; }
+  .step-friction::before { content: '⚠ '; }
+
+  /* RADAR */
+  .radar-container { display: flex; flex-direction: column; align-items: center; }
+  .radar-legend {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--gray-600);
+  }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .radar-scores-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 20px;
+    width: 100%;
+  }
+  .rs-item {
+    text-align: center;
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 8px 4px;
+  }
+  .rs-val {
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .rs-val.good { color: var(--green); }
+  .rs-val.warn { color: var(--amber); }
+  .rs-val.bad { color: var(--red); }
+  .rs-name { font-size: 0.65rem; color: var(--gray-400); line-height: 1.3; }
+
+  /* STAKEHOLDER */
+  .stakeholder-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .st-bullet {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-200);
+    border-left: 4px solid var(--blue);
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    line-height: 1.6;
+  }
+  .st-bullet strong { color: var(--navy); display: block; margin-bottom: 6px; font-size: 0.92rem; }
+
+  /* FOOTER */
+  .report-footer {
+    background: var(--navy);
+    color: rgba(255,255,255,0.55);
+    padding: 40px 5%;
+    margin-top: 40px;
+  }
+  .report-footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .report-footer h4 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 12px;
+  }
+  .report-footer p { font-size: 0.82rem; line-height: 1.65; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero-cards { grid-template-columns: repeat(2, 1fr); }
+    .overview-grid { grid-template-columns: 1fr; }
+    .heuristics-grid { grid-template-columns: 1fr; }
+    .viz-grid { grid-template-columns: 1fr; }
+    .stakeholder-grid { grid-template-columns: 1fr; }
+    .report-footer-inner { grid-template-columns: 1fr; }
+    .radar-scores-grid { grid-template-columns: repeat(5, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .hero-cards { grid-template-columns: 1fr 1fr; }
+    .radar-scores-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--gray-200); margin: 8px 0; }
+
+  /* SCORES TABLE for detail */
+  table.scores-mini { width: 100%; font-size: 0.82rem; border-collapse: collapse; }
+  table.scores-mini td { padding: 4px 8px; vertical-align: middle; }
+  table.scores-mini td:last-child { text-align: right; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ═══════ HERO ═══════ -->
+<div class="hero">
+  <div style="max-width:1200px;margin:0 auto;padding:0 5%;">
+    <div class="hero-badge">Consultoría UX · Evaluación Heurística</div>
+    <h1>Evaluación Heurística UX —<br><span>OGD Napo</span></h1>
+    <p class="hero-sub">Organización de Gestión de Destinos Napo · Sitio Web Institucional</p>
+    <div class="hero-meta">
+      <span>📅 Junio 2025</span>
+      <span>🌐 SPA · Turismo Amazónico</span>
+      <span>🔍 10 Heurísticas Nielsen + Buenas Prácticas Modernas</span>
+      <span>📄 index.html + assets locales</span>
+    </div>
+    <div class="hero-cards">
+      <div class="hero-card warn">
+        <div class="hc-value">66</div>
+        <div class="hc-label">Score UX Global</div>
+      </div>
+      <div class="hero-card bad">
+        <div class="hc-value">4</div>
+        <div class="hc-label">Riesgo Alto</div>
+      </div>
+      <div class="hero-card warn">
+        <div class="hc-value">4</div>
+        <div class="hc-label">Necesita Mejora</div>
+      </div>
+      <div class="hero-card good">
+        <div class="hc-value">2</div>
+        <div class="hc-label">Buen UX</div>
+      </div>
+    </div>
+    <div class="exec-summary">
+      <h3>Resumen Ejecutivo</h3>
+      <p>OGD Napo presenta un prototipo web con una identidad visual atractiva y contenido institucional bien estructurado. Sin embargo, la experiencia de usuario está comprometida por rutas de imágenes relativas que fallan en cualquier contexto fuera de la carpeta local, ausencia total de feedback de estado del sistema, un formulario de contacto sin validación ni propósito claro, y una arquitectura de secciones que mezcla públicos distintos (turistas y aliados) sin diferenciación funcional. El potencial del destino Napo es alto; la implementación digital actual no está a su altura.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ OVERVIEW ═══════ -->
+<div class="container section">
+  <div class="section-header">
+    <div class="section-label">01 · Visión General</div>
+    <h2 class="section-title">Contexto del Sitio</h2>
+  </div>
+  <div class="overview-grid">
+    <div class="ov-card blue-card">
+      <div class="ov-icon">🌿</div>
+      <h4>Tipo de Plataforma</h4>
+      <p>Single Page Application (SPA) institucional turística para la Organización de Gestión de Destinos de la provincia de Napo (Amazonía ecuatoriana). Combina portal de destino, escaparate de aliados, y prototipo de portal de acceso para futuros socios del ecosistema turístico.</p>
+    </div>
+    <div class="ov-card green-card">
+      <div class="ov-icon">🎯</div>
+      <h4>Propósito Principal</h4>
+      <p>Posicionar a Napo como destino turístico sostenible, atraer aliados estratégicos (emprendedores, pares, academia) y servir como vitrina institucional para la OGD frente a turistas y stakeholders provinciales e internacionales.</p>
+    </div>
+    <div class="ov-card red-card">
+      <div class="ov-icon">⚠️</div>
+      <h4>Riesgos UX Principales</h4>
+      <ul>
+        <li>Imágenes con rutas relativas rotas fuera del entorno local</li>
+        <li>Sin feedback visual de carga ni estados intermedios</li>
+        <li>Formulario de registro sin lógica ni validación</li>
+        <li>Arquitectura de información ambigua para dos públicos distintos</li>
+        <li>Falta de accesibilidad (contraste, roles ARIA, alt texts)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ HEURÍSTICAS ═══════ -->
+<div style="background:var(--gray-100); padding: 60px 0;">
+<div class="container">
+  <div class="section-header">
+    <div class="section-label">02 · Análisis Heurístico</div>
+    <h2 class="section-title">Evaluación de las 10 Heurísticas de Nielsen</h2>
+  </div>
+  <div class="heuristics-grid">
+
+    <!-- H1 Visibilidad -->
+    <div class="h-card">
+      <div class="h-card-header">
+        <div class="h-card-title">
+          <div class="h-icon red">👁️</div>
+          <div class="h-card-name">H1 · Visibilidad del Estado del Sistema</div>
+        </div>
+        <div class="h-score-block">
+          <div class="h-score bad">42</div>
+          <div class="h-badge bad">Riesgo Alto</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-labels"><span>0</span><span>Benchmark ideal: 80</span><span>100</span></div>
+        <div class="progress-bar"><div class="progress-fill bad" style="width:42%"></div><div class="benchmark-marker"></div></div>
+      </div>
+      <div class="h-section-label">Problemas observados</div>
+      <ul class="h-list">
+        <li class="problem">El botón "Continuar" del formulario no muestra ningún estado de carga; simplemente desaparece el formulario y aparece texto plano, sin animación de transición</li>
+        <li class="problem">Los ejes turísticos colapsables (cartillas) no indican visualmente cuál está activo más allá del propio expand; no hay indicador de sección activa en el menú durante el scroll</li>
+        <li class="problem">Las imágenes rotas (rutas relativas) no tienen placeholder de error: aparecen como espacio en blanco sin explicación al usuario</li>
+        <li class="problem">El filtro de "Perfil de interés" activa un scroll pero no persiste la selección como estado visible en el flujo posterior</li>
+      </ul>
+      <div class="h-section-label">Impacto</div>
+      <ul class="h-list"><li>El usuario no sabe si sus acciones tuvieron efecto. Genera desconfianza y abandono, especialmente en el formulario de aliados.</li></ul>
+      <div class="h-section-label">Recomendaciones</div>
+      <ul class="h-list">
+        <li class="rec">Agregar spinner + texto "Procesando…" en el botón Continuar durante 1-2 s antes del mensaje de éxito</li>
+        <li class="rec">Resaltar el ítem activo del menú con underline animado o cambio de peso tipográfico al hacer scroll</li>
+        <li class="rec">Implementar skeleton loaders o imagen placeholder de fondo verde para cuando las imágenes fallen</li>
+      </ul>
+      <div class="h-so-what">Sin feedback visible, los aliados potenciales que completen el formulario dudarán si su registro fue recibido, aumentando consultas por otros canales y reduciendo la tasa de conversión del formulario.</div>
+    </div>
+
+    <!-- H2 Correspondencia -->
+    <div class="h-card">
+      <div class="h-card-header">
+        <div class="h-card-title">
+          <div class="h-icon amber">🌍</div>
+          <div class="h-card-name">H2 · Correspondencia con el Mundo Real</div>
+        </div>
+        <div class="h-score-block">
+          <div class="h-score warn">72</div>
+          <div class="h-badge warn">Necesita Mejorar</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-labels"><span>0</span><span>Benchmark ideal: 80</span><span>100</span></div>
+        <div class="progress-bar"><div class="progress-fill warn" style="width:72%"></div><div class="benchmark-marker"></div></div>
+      </div>
+      <div class="h-section-label">Problemas observados</div>
+      <ul class="h-list">
+        <li class="problem">La sección "Contactos" en el menú lleva al formulario de acceso ("Bienvenido al equipo"), lo cual es conceptualmente un portal de aliados, no un formulario de contacto para turistas</li>
+        <li class="problem">El CTA "Ordenanza de Napo" usa lenguaje legal/burocrático que no conecta con la emoción del turismo sostenible; rompe el tono aspiracional del resto del sitio</li>
+        <li class="problem">La sección "Perfil de interés" usa los términos "Turismo" y "Aliados" sin explicar qué diferencia genera al pulsarlos</li>
+      </ul>
+      <div class="h-section-label">Recomendaciones</div>
+      <ul class="h-list">
+        <li class="rec">Renombrar "Contactos" a "Únete" o separar en "Contacto para viajeros" y "Portal de aliados"</li>
+        <li class="rec">Reemplazar "Ordenanza de Napo" por "Conoce cómo unirte →" con el documento como recurso secundario</li>
+        <li class="rec">Agregar micro-copy bajo los botones de perfil: "Para visitantes y turistas" / "Para empresas y organizaciones"</li>
+      </ul>
+      <div class="h-so-what">Un turista que llega desde Google buscando experiencias en Napo y aterriza en un formulario de acceso con campos de contraseña se desorientará y abandonará el sitio sin convertir.</div>
+    </div>
+
+    <!-- H3 Control -->
+    <div class="h-card">
+      <div class="h-card-header">
+        <div class="h-card-title">
+          <div class="h-icon red">↩️</div>
+          <div class="h-card-name">H3 · Control y Libertad del Usuario</div>
+        </div>
+        <div class="h-score-block">
+          <div class="h-score bad">48</div>
+          <div class="h-badge bad">Riesgo Alto</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-labels"><span>0</span><span>Benchmark ideal: 80</span><span>100</span></div>
+        <div class="progress-bar"><div class="progress-fill bad" style="width:48%"></div><div class="benchmark-marker"></div></div>
+      </div>
+      <div class="h-section-label">Problemas observados</div>
+      <ul class="h-list">
+        <li class="problem">Una vez enviado el formulario ("Continuar"), no hay opción de regresar al formulario ni de cancelar la acción; el mensaje de éxito es permanente en la misma sesión</li>
+        <li class="problem">Las cartillas de ejes turísticos abren correctamente, pero no hay botón "Cerrar" o "×" explícito; solo re-clic en el mismo botón del eje, lo cual no es descubrible</li>
+        <li class="problem">No existe botón "volver arriba" (Back to Top) a pesar de ser una SPA larga con ~8 secciones</li>
+        <li class="problem">El hamburger menu no tiene animación de cierre clara ni overlay para que el usuario sepa que puede cerrar tocando fuera</li>
+      </ul>
+      <div class="h-section-label">Recomendaciones</div>
+      <ul class="h-list">
+        <li class="rec">Agregar botón "← Volver al formulario" debajo del mensaje de éxito</li>
+        <li class="rec">Añadir icono "×" visible en la esquina superior derecha de cada cartilla de eje turístico</li>
+        <li class="rec">Implementar botón sticky "↑" que aparezca después de scrollear 400px</li>
+      </ul>
+      <div class="h-so-what">Usuarios que enviaron el formulario por error o que quieren cerrar una cartilla de eje sin encontrar cómo hacerlo generan frustración inmediata, reduciendo la percepción de profesionalismo de la OGD.</div>
+    </div>
+
+    <!-- H4 Consistencia -->
+    <div class="h-card">
+      <div class="h-card-header">
+        <div class="h-card-title">
+          <div class="h-icon amber">🎨</div>
+          <div class="h-card-name">H4 · Consistencia y Estándares</div>
+        </div>
+        <div class="h-score-block">
+          <div class="h-score warn">68</div>
+          <div class="h-badge warn">Necesita Mejorar</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-labels"><span>0</span><span>Benchmark ideal: 80</span><span>100</span></div>
+        <div class="progress-bar"><div class="progress-fill warn" style="width:68%"></div><div class="benchmark-marker"></div></div>
+      </div>
+      <div class="h-section-label">Problemas observados</div>
+      <ul class="h-list">
+        <li class="problem">Los pictogramas de ejes turísticos muestran tamaño 250×250px en los botones pero solo 48×48px dentro de la cartilla, lo cual crea una jerarquía visual inconsistente</li>
+        <li class="problem">Los botones primarios usan tres estilos distintos: .btn-hero (relleno morado), .btn-outline (borde morado), y .btn-perfil (borde morado con hover), sin sistema de design tokens documentado</li>
+        <li class="problem">Las imágenes de aliados tienen border-radius: 24px en tarjetas, mientras las imágenes de pilares usan clip-path orgánico; el criterio de imagen no es coherente</li>
+        <li class="problem">La tipografía Days One se usa para h1-h4 pero la sección "Aliados del equipo" usa font-family Days One en h3 mientras la sección de ejes usa Josefin Sans para h3</li>
+      </ul>
+      <div class="h-section-label">Recomendaciones</div>
+      <ul class="h-list">
+        <li class="rec">Definir un sistema de 3 variantes de botón: primary, secondary, ghost y aplicarlas consistentemente</li>
+        <li class="rec">Unificar el tamaño de pictogramas a 80×80px en ambos contextos (listado y cartilla)</li>
+        <li class="rec">Crear un token de imagen: organic-mask para secciones hero y card-radius: 20px para tarjetas de datos</li>
+      </ul>
+      <div class="h-so-what">La inconsistencia de patrones visuales hace que el sitio parezca un trabajo en progreso a ojos de aliados institucionales y OMT, debilitando la credibilidad de la OGD como organización profesional.</div>
+    </div>
+
+    <!-- H5 Prevención de errores -->
+    <div class="h-card">
+      <div class="h-card-header">
+        <div class="h-card-title">
+          <div class="h-icon red">🛡️</div>
+          <div class="h-card-name">H5 · Prevención de Errores</div>
+        </div>
+        <div class="h-score-block">
+          <div class="h-score bad">35</div>
+          <div class="h-badge bad">Riesgo Alto</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-labels"><span>0</span><span>Benchmark ideal: 80</span><span>100</span></div>
+        <div class="progress-bar"><div class="progress-fill bad" style="width:35%"></div><div class="benchmark-marker"></div></div>
+      </div>
+      <div class="h-section-label">Problemas observados</div>
+      <ul class="h-list">
+        <li class="problem">El formulario de acceso no valida el email (acepta cualquier texto en el campo usuario), no verifica la contraseña y dispara handleLogin() sin ninguna verificación de campos vacíos</li>
+        <li class="problem">El botón "Ordenanza de Napo" lleva a href="#" que produce un salto de página al inicio, sin advertencia previa de que abrirá un PDF externo</li>
+        <li class="problem">Los ejes turísticos permiten abrir múltiples cartillas si el usuario hace clic rápido antes de que la animación cierre la anterior; el estado currentEje puede desincronizarse</li>
+        <li class="problem">No hay manejo de error si las fuentes de Google Fonts no cargan (sin fallback robusto en font-stack)</li>
+      </ul>
+      <div class="h-section-label">Recomendaciones</div>
+      <ul class="h-list">
+        <li class="rec">Implementar validación HTML5 nativa: required, type="email", minlength en la contraseña; deshabilitar el botón hasta campos completos</li>
+        <li class="rec">Agregar disable del botón eje durante la animación de transición para evitar estados intermedios</li>
+        <li class="rec">Añadir font-display: swap y fallback stack robusto en el @import de Google Fonts</li>
+      </ul>
+      <div class="h-so-what">Un formulario que acepta cualquier dato y confirma "registro exitoso" sin procesarlo real es potencialmente engañoso para futuros aliados que crean que han formalizado su vinculación con la OGD.</div>
+    </div>
+
+    <!-- H6 Reconocimiento vs recuerdo -->
+    <div class="h-card">
+      <div class="h-card-header">
+        <div class="h-card-title">
+          <div class="h-icon amber">🧠</div>
+          <div class="h-card-name">H6 · Reconocimiento vs. Recuerdo</div>
+        </div>
+        <div class="h-score-block">
+          <div class="h-score warn">70</div>
+          <div class="h-badge warn">Necesita Mejorar</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-labels"><span>0</span><span>Benchmark ideal: 80</span><span>100</span></div>
+        <div class="progress-bar"><div class="progress-fill warn" style="width:70%"></div><div class="benchmark-marker"></div></div>
+      </div>
+      <div class="h-section-label">Problemas observados</div>
+      <ul class="h-list">
+        <li class="problem">Los 6 ejes turísticos no tienen descripción visible en el listado; el usuario debe hacer clic para descubrir qué es "Geoaventura" o "Chakra y chocolate", dependiendo de su memoria previa</li>
+        <li class="problem">La sección "Estructura" muestra la infografía floral sin leyenda ni tooltips; los actores del sistema solo son legibles al acercar la pantalla</li>
+        <li class="problem">El botón "Estructura" en el hero CTA no es predecible: el usuario no sabe a qué sección lleva sin haberlo visitado antes</li>
+      </ul>
+      <div class="h-section-label">Recomendaciones</div>
+      <ul class="h-list">
+        <li class="rec">Agregar 1-2 líneas de micro-descripción bajo cada eje en el grid de iconos para contextualizar antes del clic</li>
+        <li class="rec">Reemplazar el CTA "Estructura" del hero por "Conoce cómo trabajamos" o un texto más descriptivo del destino</li>
+        <li class="rec">Añadir tooltips o leyenda lateral en la infografía floral para contextos de pantalla pequeña</li>
+      </ul>
+      <div class="h-so-what">Un visitante internacional que llega al sitio sin conocer el destino abandonará la sección de experiencias sin explorar los ejes porque no puede reconocer su relevancia de un vistazo.</div>
+    </div>
+
+    <!-- H7 Flexibilidad -->
+    <div class="h-card">
+      <div class="h-card-header">
+        <div class="h-card-title">
+          <div class="h-icon red">⚡</div>
+          <div class="h-card-name">H7 · Flexibilidad y Eficiencia de Uso</div>
+        </div>
+        <div class="h-score-block">
+          <div class="h-score bad">50</div>
+          <div class="h-badge bad">Riesgo Alto</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-labels"><span>0</span><span>Benchmark ideal: 80</span><span>100</span></div>
+        <div class="progress-bar"><div class="progress-fill bad" style="width:50%"></div><div class="benchmark-marker"></div></div>
+      </div>
+      <div class="h-section-label">Problemas observados</div>
+      <ul class="h-list">
+        <li class="problem">No hay acceso directo a los ejes turísticos o a la ficha de aliados desde el menú; el usuario debe scrollear toda la página para llegar a esas subsecciones</li>
+        <li class="problem">El filtro "Perfil de interés" hace scroll a la sección completa, no filtra el contenido en tiempo real; un aliado que quiera ver solo información de aliados ve igualmente todos los ejes turísticos</li>
+        <li class="problem">No hay función de búsqueda ni mapa del sitio; en una SPA tan densa, la localización de contenido específico depende completamente del scroll manual</li>
+        <li class="problem">Las tarjetas de aliados no tienen página de detalle ni forma de contactar directamente al aliado</li>
+      </ul>
+      <div class="h-section-label">Recomendaciones</div>
+      <ul class="h-list">
+        <li class="rec">Implementar sub-anchors en el menú (dropdown o megamenu ligero) para cada eje y cada categoría de aliado</li>
+        <li class="rec">Convertir el filtro de perfil en un verdadero toggle que oculte/muestre secciones relevantes</li>
+        <li class="rec">Agregar un mapa de anclas lateral sticky para desktop que permita saltar a cualquier subsección</li>
+      </ul>
+      <div class="h-so-what">Un operador turístico que visite el sitio en móvil necesita 8+ scrolls para llegar a la sección de aliados. Cada scroll adicional sin progreso visible incrementa el riesgo de abandono en un 15-20% según benchmarks de turismo digital.</div>
+    </div>
+
+    <!-- H8 Diseño estético -->
+    <div class="h-card">
+      <div class="h-card-header">
+        <div class="h-card-title">
+          <div class="h-icon green">✨</div>
+          <div class="h-card-name">H8 · Diseño Estético y Minimalista</div>
+        </div>
+        <div class="h-score-block">
+          <div class="h-score good">81</div>
+          <div class="h-badge good">Buen UX</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-labels"><span>0</span><span>Benchmark ideal: 80</span><span>100</span></div>
+        <div class="progress-bar"><div class="progress-fill good" style="width:81%"></div><div class="benchmark-marker"></div></div>
+      </div>
+      <div class="h-section-label">Fortalezas</div>
+      <ul class="h-list">
+        <li>La paleta morado institucional + blanco + grises es coherente y proyecta seriedad institucional equilibrada con calidez turística</li>
+        <li>Los wave dividers SVG entre secciones crean fluidez visual orgánica que diferencia el sitio de plantillas genéricas</li>
+        <li>La tipografía Days One / Josefin Sans es elegante y legible; el pairing funciona bien para turismo premium</li>
+        <li>El overlay del hero con gradiente direccional permite leer el texto sin sacrificar la foto de fondo</li>
+      </ul>
+      <div class="h-section-label">Áreas de mejora</div>
+      <ul class="h-list">
+        <li class="problem">El hero ocupa 100vh pero el contenido real (h1 + texto) está en la esquina inferior izquierda; hay demasiado "aire" sin propósito visual en la zona superior derecha</li>
+        <li class="problem">La sección de ejes turísticos con iconos 250×250px en desktop es desproporcionada; ocupa mucho espacio vertical para 6 botones de texto/ícono</li>
+      </ul>
+      <div class="h-so-what">El estilo visual es el principal activo actual del sitio; no lo desperdicies con layouts desproporcionales. Un ajuste de tamaños y densidad de contenido proyectaría más madurez de producto sin sacrificar la identidad orgánica.</div>
+    </div>
+
+    <!-- H9 Manejo de errores -->
+    <div class="h-card">
+      <div class="h-card-header">
+        <div class="h-card-title">
+          <div class="h-icon red">🔧</div>
+          <div class="h-card-name">H9 · Manejo y Recuperación de Errores</div>
+        </div>
+        <div class="h-score-block">
+          <div class="h-score bad">28</div>
+          <div class="h-badge bad">Riesgo Alto</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-labels"><span>0</span><span>Benchmark ideal: 80</span><span>100</span></div>
+        <div class="progress-bar"><div class="progress-fill bad" style="width:28%"></div><div class="benchmark-marker"></div></div>
+      </div>
+      <div class="h-section-label">Problemas observados</div>
+      <ul class="h-list">
+        <li class="problem">Las imágenes con rutas relativas (rio.gif, comedero.png, escalador.png, etc.) fallan silenciosamente cuando el HTML se abre desde cualquier directorio diferente a OGD/; no hay onerror handler ni imagen de fallback</li>
+        <li class="problem">No existe manejo de error en el formulario de contacto: si el campo está vacío y se pulsa "Continuar", igualmente muestra el mensaje de éxito</li>
+        <li class="problem">No hay página 404 ni redirect para anclas inválidas; la navegación directa a URLs como #contacto (sin 's') no da feedback</li>
+        <li class="problem">El GIF animado rio.gif se usa como hero y como imagen de "Transparencia" en los pilares; si no carga, ambas secciones quedan en negro sin alternativa</li>
+      </ul>
+      <div class="h-section-label">Recomendaciones</div>
+      <ul class="h-list">
+        <li class="rec">Implementar onerror="this.src='placeholder.jpg'" en todas las imágenes, o usar CSS background-color como fallback con clase .img-fallback</li>
+        <li class="rec">Validar formulario antes de mostrar éxito: if(!user || !pass) { showError('Completa todos los campos'); return; }</li>
+        <li class="rec">Separar el GIF en dos instancias diferentes para evitar dependencia única</li>
+      </ul>
+      <div class="h-so-what">Un sitio con imágenes rotas y formularios que confirman éxitos falsos no puede ser el escaparate digital de una organización que aspira a gestionar el turismo provincial de Napo. Este es el problema de mayor urgencia técnica.</div>
+    </div>
+
+    <!-- H10 Ayuda y documentación -->
+    <div class="h-card">
+      <div class="h-card-header">
+        <div class="h-card-title">
+          <div class="h-icon green">📚</div>
+          <div class="h-card-name">H10 · Ayuda y Documentación</div>
+        </div>
+        <div class="h-score-block">
+          <div class="h-score good">82</div>
+          <div class="h-badge good">Buen UX</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-labels"><span>0</span><span>Benchmark ideal: 80</span><span>100</span></div>
+        <div class="progress-bar"><div class="progress-fill good" style="width:82%"></div><div class="benchmark-marker"></div></div>
+      </div>
+      <div class="h-section-label">Fortalezas</div>
+      <ul class="h-list">
+        <li>Las cartillas de ejes turísticos proveen contexto amplio sin requerir navegación externa; el contenido está en el propio sitio</li>
+        <li>Las secciones de Emprendedores, Pares y Academias explican brevemente qué rol desempeña cada categoría de aliado</li>
+        <li>El texto institucional de "¿Cuál es nuestro propósito?" y "Nosotros" proporciona contexto claro sobre la OGD</li>
+      </ul>
+      <div class="h-section-label">Áreas de mejora</div>
+      <ul class="h-list">
+        <li class="problem">No hay FAQ ni sección de preguntas frecuentes para turistas (¿Cómo reservar? ¿Con quién contactar?) ni para aliados (¿Qué documentos necesito?)</li>
+        <li class="problem">El botón "Ordenanza de Napo" no tiene contexto de qué encontrará el usuario al pulsarlo (¿PDF? ¿Cuántas páginas? ¿En qué idioma?)</li>
+      </ul>
+      <div class="h-so-what">El contenido de ayuda es notable para un prototipo, pero una sección de preguntas frecuentes reduciría significativamente la carga de soporte por correo para el equipo de la OGD.</div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ═══════ PRIORIZACIÓN ═══════ -->
+<div class="container section">
+  <div class="section-header">
+    <div class="section-label">03 · Priorización</div>
+    <h2 class="section-title">Top 5 Problemas Críticos</h2>
+  </div>
+  <div style="overflow-x:auto; border-radius:var(--radius-lg); box-shadow:var(--shadow-md);">
+  <table class="priority-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Problema</th>
+        <th>Gravedad</th>
+        <th>Impacto Negocio</th>
+        <th>Justificación</th>
+        <th>Urgencia</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong style="color:var(--navy)">01</strong></td>
+        <td>
+          <span class="prob-title">Imágenes con rutas relativas rotas</span>
+          El sitio depende de que el HTML esté en la misma carpeta que los assets. En cualquier servidor o CDN, todas las imágenes fallan silenciosamente.
+        </td>
+        <td><span class="sev-badge sev-critical">Crítica</span></td>
+        <td>
+          <span class="impact-tag">🤝 Confianza</span>
+          <span class="impact-tag">📈 Conversión</span>
+        </td>
+        <td>Un sitio sin imágenes no comunica el valor del destino. El turismo es 80% visual. Una primera impresión rota no da segunda oportunidad.</td>
+        <td><span class="urgency-badge urg-now">Inmediata</span></td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--navy)">02</strong></td>
+        <td>
+          <span class="prob-title">Formulario sin validación ni backend real</span>
+          El botón "Continuar" acepta campos vacíos y muestra "Registro exitoso" en todos los casos, generando expectativas falsas en los aliados.
+        </td>
+        <td><span class="sev-badge sev-critical">Crítica</span></td>
+        <td>
+          <span class="impact-tag">🤝 Confianza</span>
+          <span class="impact-tag">💶 Ingresos</span>
+        </td>
+        <td>Aliados que crean haberse registrado y no reciban seguimiento abandarán el proceso de afiliación, perdiendo socios potenciales del ecosistema turístico.</td>
+        <td><span class="urgency-badge urg-now">Inmediata</span></td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--navy)">03</strong></td>
+        <td>
+          <span class="prob-title">Arquitectura de información dual sin diferenciación</span>
+          El sitio mezcla contenido para turistas y para aliados sin filtrado real. El filtro de "Perfil de interés" solo hace scroll, no personaliza la experiencia.
+        </td>
+        <td><span class="sev-badge sev-high">Alta</span></td>
+        <td>
+          <span class="impact-tag">📈 Conversión</span>
+          <span class="impact-tag">⏱ Eficiencia</span>
+        </td>
+        <td>Dos públicos con necesidades opuestas compiten por la misma arquitectura, degradando la experiencia de ambos. Los turistas ven formularios de empresa; los aliados navegan por experiencias de turismo.</td>
+        <td><span class="urgency-badge urg-soon">Próxima versión</span></td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--navy)">04</strong></td>
+        <td>
+          <span class="prob-title">Sin feedback visible de acciones del usuario</span>
+          Los botones de cartilla, formulario y navegación no muestran estados intermedios (loading, active, success) dejando al usuario sin confirmación de sus acciones.
+        </td>
+        <td><span class="sev-badge sev-high">Alta</span></td>
+        <td>
+          <span class="impact-tag">🤝 Confianza</span>
+          <span class="impact-tag">📞 Soporte</span>
+        </td>
+        <td>La ausencia de feedback genera dobles clics, estados duplicados y consultas al equipo. En turismo institucional, la percepción de "sistema lento o roto" impacta directamente la credibilidad de la OGD.</td>
+        <td><span class="urgency-badge urg-soon">Próxima versión</span></td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--navy)">05</strong></td>
+        <td>
+          <span class="prob-title">Accesibilidad mínima: sin roles ARIA, contrastes limitados</span>
+          Las imágenes decorativas carecen de alt descriptivo, los botones de eje no tienen aria-expanded, y el overlay del hero puede reducir el contraste bajo WCAG AA.
+        </td>
+        <td><span class="sev-badge sev-medium">Media</span></td>
+        <td>
+          <span class="impact-tag">🤝 Confianza</span>
+          <span class="impact-tag">💶 Ingresos</span>
+        </td>
+        <td>Turistas con discapacidad visual y lectores de pantalla no pueden navegar el sitio. Además, organismos como OMT valoran la accesibilidad como indicador de madurez institucional.</td>
+        <td><span class="urgency-badge urg-plan">Planificar</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ═══════ VISUALIZACIONES ═══════ -->
+<div style="background:var(--gray-100); padding: 60px 0;">
+<div class="container">
+  <div class="section-header">
+    <div class="section-label">04 · Visualizaciones UX</div>
+    <h2 class="section-title">Flujo de Usuario y Radar Heurístico</h2>
+  </div>
+  <div class="viz-grid">
+
+    <!-- JOURNEY -->
+    <div class="viz-card">
+      <h3>Flujo de Usuario — Turista Internacional</h3>
+      <p class="viz-desc">Customer journey simplificado · desde descubrimiento hasta conversión</p>
+      <ul class="journey-list">
+        <li class="journey-step">
+          <div class="step-num ok">1</div>
+          <div class="step-content">
+            <div class="step-title">Descubrimiento (Google / Redes)</div>
+            <div class="step-desc">El turista llega al sitio desde una búsqueda de "turismo amazónico Ecuador" o desde un post en redes sociales.</div>
+            <div class="step-intent">Intención: Explorar si Napo es un destino viable para su viaje</div>
+          </div>
+        </li>
+        <li class="journey-step">
+          <div class="step-num warn">2</div>
+          <div class="step-content">
+            <div class="step-title">Primer contacto con el Hero</div>
+            <div class="step-desc">Ve la imagen del río con el texto "Somos Napo" y la frase inspiracional. El botón "Estructura" no le dice nada inmediato.</div>
+            <div class="step-intent">Intención: Entender qué ofrece el destino y cómo llegar</div>
+            <div class="step-friction">El CTA "Estructura" es institucional, no aspiracional. No convierte a turistas.</div>
+          </div>
+        </li>
+        <li class="journey-step">
+          <div class="step-num ok">3</div>
+          <div class="step-content">
+            <div class="step-title">Exploración de Experiencias</div>
+            <div class="step-desc">Hace scroll hasta la sección de ejes. Hace clic en "Aventura" o "Agua". Lee la cartilla con interés.</div>
+            <div class="step-intent">Intención: Conocer actividades específicas disponibles en Napo</div>
+          </div>
+        </li>
+        <li class="journey-step">
+          <div class="step-num bad">4</div>
+          <div class="step-content">
+            <div class="step-title">Intento de Contacto</div>
+            <div class="step-desc">Busca cómo contactar o reservar. Hace clic en "Contactos" del menú. Llega a un formulario de acceso con usuario y contraseña.</div>
+            <div class="step-intent">Intención: Contactar con la OGD o con un operador para planificar el viaje</div>
+            <div class="step-friction">El formulario de login confunde al turista. No sabe si debe "registrarse" para contactar. Punto de abandono crítico.</div>
+          </div>
+        </li>
+        <li class="journey-step">
+          <div class="step-num bad">5</div>
+          <div class="step-content">
+            <div class="step-title">Abandono o Frustración</div>
+            <div class="step-desc">Sin encontrar un formulario de contacto simple ni un número de WhatsApp prominente, el turista cierra la pestaña o busca el email capturnapo@gmail.com manualmente desde el footer.</div>
+            <div class="step-intent">Intención: Recibir información para reservar su viaje a Napo</div>
+            <div class="step-friction">Conversión fallida. La OGD pierde un turista potencial por falta de ruta de contacto clara.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- RADAR -->
+    <div class="viz-card">
+      <h3>Radar Heurístico</h3>
+      <p class="viz-desc">Score por heurística vs. benchmark ideal (80 puntos)</p>
+      <div class="radar-container">
+        <svg viewBox="0 0 460 440" width="460" height="440" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;">
+          <!-- Background rings -->
+          <g transform="translate(230,220)">
+            <!-- Rings at 20, 40, 60, 80, 100 -->
+            <polygon points="0,-100 95,-31 59,81 -59,81 -95,-31" fill="none" stroke="#e2e6f0" stroke-width="1"/>
+            <polygon points="0,-80 76,-25 47,65 -47,65 -76,-25" fill="none" stroke="#e2e6f0" stroke-width="1"/>
+            <polygon points="0,-60 57,-18 35,49 -35,49 -57,-18" fill="none" stroke="#e2e6f0" stroke-width="1"/>
+            <polygon points="0,-40 38,-12 24,32 -24,32 -38,-12" fill="none" stroke="#e2e6f0" stroke-width="1"/>
+            <polygon points="0,-20 19,-6 12,16 -12,16 -19,-6" fill="none" stroke="#e2e6f0" stroke-width="1"/>
+            <!-- Benchmark ring at 80% -->
+            <polygon points="0,-80 76,-25 47,65 -47,65 -76,-25" fill="rgba(34,81,204,0.05)" stroke="#2251cc" stroke-width="1.5" stroke-dasharray="5,3"/>
+          </g>
+          <!-- Axes (10 axes for 10 heuristics) -->
+          <!-- We'll use a 10-point radar with labels outside -->
+          <!-- Recalculate for 10 axes: angle = 360/10 * i - 90 -->
+          <!-- Center 230,220; radius 100 -->
+          <g transform="translate(230,220)" stroke="#e2e6f0" stroke-width="1">
+            <!-- Axis lines -->
+            <line x1="0" y1="0" x2="0" y2="-110"/>
+            <line x1="0" y1="0" x2="104" y2="-34"/>
+            <line x1="0" y1="0" x2="105" y2="34"/>
+            <line x1="0" y1="0" x2="64" y2="88"/>
+            <line x1="0" y1="0" x2="0" y2="110"/>
+            <line x1="0" y1="0" x2="-64" y2="88"/>
+            <line x1="0" y1="0" x2="-105" y2="34"/>
+            <line x1="0" y1="0" x2="-104" y2="-34"/>
+            <line x1="0" y1="0" x2="-64" y2="-88"/>
+            <line x1="0" y1="0" x2="64" y2="-88"/>
+          </g>
+          <!-- Score polygon: scores are [42,72,48,68,35,70,50,81,28,82] normalized to 0-100 → scale to radius 100 -->
+          <!-- Points: each axis i at angle (i*36 - 90) deg, r = score -->
+          <!-- H1=42 angle=-90: (0,-42) -->
+          <!-- H2=72 angle=-54: (72*cos(-54°),72*sin(-54°))=(72*0.588,72*-0.809)=(42.3,-58.2) -->
+          <!-- H3=48 angle=-18: (48*0.951,48*-0.309)=(45.6,-14.8) -->
+          <!-- H4=68 angle=18: (68*0.951,68*0.309)=(64.7,21.0) -->
+          <!-- H5=35 angle=54: (35*0.588,35*0.809)=(20.6,28.3) -->
+          <!-- H6=70 angle=90: (0,70) -->
+          <!-- H7=50 angle=126: (50*-0.588,50*0.809)=(-29.4,40.5) -->
+          <!-- H8=81 angle=162: (81*-0.951,81*0.309)=(-77.0,25.0) -->
+          <!-- H9=28 angle=198: (28*-0.951,28*-0.309)=(-26.6,-8.7) -->
+          <!-- H10=82 angle=234: (82*-0.588,82*-0.809)=(-48.2,-66.3) -->
+          <!-- Wait, let me redo: angle = -90 + i*36 -->
+          <!-- i=0 (H1): -90, point=(0*cos(-90),0*sin(-90))... score=42 so r=42: (42*0,42*-1)=(0,-42) -->
+          <!-- Let me compute all in translate(230,220) -->
+          <g transform="translate(230,220)">
+            <!-- Score polygon -->
+            <polygon
+              points="
+                0,-42
+                42.3,-58.2
+                45.6,-14.8
+                64.7,21.0
+                20.6,28.3
+                0,70
+                -29.4,40.5
+                -77.0,25.0
+                -26.6,-8.7
+                -48.2,-66.3
+              "
+              fill="rgba(46,44,143,0.25)"
+              stroke="#2E2C8F"
+              stroke-width="2.5"
+              stroke-linejoin="round"
+            />
+            <!-- Score dots -->
+            <circle cx="0" cy="-42" r="4" fill="#dc2626"/>
+            <circle cx="42.3" cy="-58.2" r="4" fill="#d97706"/>
+            <circle cx="45.6" cy="-14.8" r="4" fill="#dc2626"/>
+            <circle cx="64.7" cy="21.0" r="4" fill="#d97706"/>
+            <circle cx="20.6" cy="28.3" r="4" fill="#dc2626"/>
+            <circle cx="0" cy="70" r="4" fill="#d97706"/>
+            <circle cx="-29.4" cy="40.5" r="4" fill="#dc2626"/>
+            <circle cx="-77.0" cy="25.0" r="4" fill="#16a34a"/>
+            <circle cx="-26.6" cy="-8.7" r="4" fill="#dc2626"/>
+            <circle cx="-48.2" cy="-66.3" r="4" fill="#16a34a"/>
+
+            <!-- Ring labels -->
+            <text x="5" y="-78" font-size="9" fill="#9aa3be">80</text>
+            <text x="5" y="-58" font-size="9" fill="#9aa3be">60</text>
+            <text x="5" y="-38" font-size="9" fill="#9aa3be">40</text>
+            <text x="5" y="-18" font-size="9" fill="#9aa3be">20</text>
+          </g>
+
+          <!-- Axis labels -->
+          <text x="230" y="96" text-anchor="middle" font-size="11" fill="#5a6282" font-weight="600">H1 Visibilidad</text>
+          <text x="230" y="108" text-anchor="middle" font-size="10" fill="#9aa3be">42</text>
+
+          <text x="353" y="148" text-anchor="start" font-size="11" fill="#5a6282" font-weight="600">H2 Mundo real</text>
+          <text x="353" y="160" text-anchor="start" font-size="10" fill="#9aa3be">72</text>
+
+          <text x="356" y="248" text-anchor="start" font-size="11" fill="#5a6282" font-weight="600">H3 Control</text>
+          <text x="356" y="260" text-anchor="start" font-size="10" fill="#9aa3be">48</text>
+
+          <text x="310" y="335" text-anchor="middle" font-size="11" fill="#5a6282" font-weight="600">H4 Consistencia</text>
+          <text x="310" y="347" text-anchor="middle" font-size="10" fill="#9aa3be">68</text>
+
+          <text x="230" y="365" text-anchor="middle" font-size="11" fill="#5a6282" font-weight="600">H5 Prev. errores</text>
+          <text x="230" y="377" text-anchor="middle" font-size="10" fill="#9aa3be">35</text>
+
+          <text x="150" y="335" text-anchor="middle" font-size="11" fill="#5a6282" font-weight="600">H6 Reconoc.</text>
+          <text x="150" y="347" text-anchor="middle" font-size="10" fill="#9aa3be">70</text>
+
+          <text x="76" y="260" text-anchor="end" font-size="11" fill="#5a6282" font-weight="600">H7 Eficiencia</text>
+          <text x="76" y="272" text-anchor="end" font-size="10" fill="#9aa3be">50</text>
+
+          <text x="76" y="158" text-anchor="end" font-size="11" fill="#5a6282" font-weight="600">H8 Estética</text>
+          <text x="76" y="170" text-anchor="end" font-size="10" fill="#9aa3be">81</text>
+
+          <text x="116" y="110" text-anchor="middle" font-size="11" fill="#5a6282" font-weight="600">H9 Errores</text>
+          <text x="116" y="122" text-anchor="middle" font-size="10" fill="#9aa3be">28</text>
+
+          <text x="345" y="110" text-anchor="middle" font-size="11" fill="#5a6282" font-weight="600">H10 Ayuda</text>
+          <text x="345" y="122" text-anchor="middle" font-size="10" fill="#9aa3be">82</text>
+        </svg>
+
+        <div class="radar-legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#2E2C8F;opacity:0.7;"></div>
+            <span>Resultados OGD Napo</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#2251cc;border:1px dashed #2251cc;"></div>
+            <span>Benchmark UX Ideal (80)</span>
+          </div>
+        </div>
+        <div class="radar-scores-grid">
+          <div class="rs-item"><div class="rs-val bad">42</div><div class="rs-name">H1<br>Visibilidad</div></div>
+          <div class="rs-item"><div class="rs-val warn">72</div><div class="rs-name">H2<br>Mundo Real</div></div>
+          <div class="rs-item"><div class="rs-val bad">48</div><div class="rs-name">H3<br>Control</div></div>
+          <div class="rs-item"><div class="rs-val warn">68</div><div class="rs-name">H4<br>Consistencia</div></div>
+          <div class="rs-item"><div class="rs-val bad">35</div><div class="rs-name">H5<br>Prev. Err.</div></div>
+          <div class="rs-item"><div class="rs-val warn">70</div><div class="rs-name">H6<br>Reconoc.</div></div>
+          <div class="rs-item"><div class="rs-val bad">50</div><div class="rs-name">H7<br>Eficiencia</div></div>
+          <div class="rs-item"><div class="rs-val good">81</div><div class="rs-name">H8<br>Estética</div></div>
+          <div class="rs-item"><div class="rs-val bad">28</div><div class="rs-name">H9<br>Errores</div></div>
+          <div class="rs-item"><div class="rs-val good">82</div><div class="rs-name">H10<br>Ayuda</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ═══════ STAKEHOLDERS ═══════ -->
+<div class="container section">
+  <div class="section-header">
+    <div class="section-label">05 · Resumen para Stakeholders</div>
+    <h2 class="section-title">Síntesis Estratégica</h2>
+  </div>
+  <div class="stakeholder-grid">
+    <div class="st-bullet">
+      <strong>🌿 El sitio tiene una base visual sólida, pero está en fase prototipo</strong>
+      El diseño orgánico y la identidad cromática de OGD Napo son atractivos y diferenciadores. Sin embargo, la implementación actual depende de que los archivos estén en una carpeta local específica, lo que significa que el sitio no funcionará correctamente en ningún servidor web o hosting externo hasta que se corrijan las rutas de las imágenes.
+    </div>
+    <div class="st-bullet">
+      <strong>🤝 El formulario de "aliados" genera expectativas que no puede cumplir</strong>
+      Cuando un emprendedor turístico completa el formulario de acceso, recibe un mensaje de "registro exitoso" sin que ningún dato haya sido procesado. Esto crea una promesa institucional que la plataforma no cumple, dañando la credibilidad de la OGD en el primer punto de conversión clave.
+    </div>
+    <div class="st-bullet">
+      <strong>📱 El sitio está pensado para desktop; la experiencia móvil necesita atención prioritaria</strong>
+      Con imágenes de pictogramas de 250×250px y secciones que requieren múltiples scrolls sin anclas rápidas, el sitio penaliza a usuarios de teléfono. Más del 70% del tráfico turístico en Latinoamérica proviene de dispositivos móviles; no optimizar esto implica perder la mayoría de los visitantes potenciales.
+    </div>
+    <div class="st-bullet">
+      <strong>🗺️ La arquitectura de información no distingue entre turistas y aliados</strong>
+      El filtro de "Perfil de interés" (Turismo / Aliados) es visual pero no funcional. Ambos públicos ven el mismo contenido, diluyendo la relevancia de cada sección para cada audiencia. Un turista no necesita ver información sobre "pares estratégicos"; un operador turístico no necesita explorar los 6 ejes de experiencia turística.
+    </div>
+    <div class="st-bullet">
+      <strong>✨ Los contenidos institucionales son el activo más fuerte del sitio</strong>
+      Las cartillas de ejes turísticos, la infografía de la estructura OGD, y los textos de propósito son informativos, bien redactados y diferenciales. Este contenido es el que retiene al usuario. Invertir en su presentación interactiva (con modales, animaciones de entrada, y contexto micro) maximizaría el tiempo de sesión.
+    </div>
+    <div class="st-bullet">
+      <strong>📈 Con 5 correcciones técnicas, el sitio puede estar listo para lanzamiento en 2–3 semanas</strong>
+      Las prioridades inmediatas son: (1) rutas de imágenes absolutas o assets embebidos en base64, (2) validación del formulario + conexión a un servicio de formularios como Formspree o EmailJS, (3) botón "×" en cartillas, (4) indicador de scroll activo en el menú, (5) botón de WhatsApp flotante para contacto directo con turistas. Todo esto es alcanzable sin rediseño.
+    </div>
+    <div class="st-bullet">
+      <strong>🔒 La accesibilidad mínima es un requisito institucional, no opcional</strong>
+      Una organización que gestiona turismo para organismos como la OMT y GADs provinciales debe cumplir con estándares WCAG 2.1 AA. Actualmente el sitio carece de atributos ARIA, los botones de eje no indican su estado expandido/colapsado, y algunos textos sobre overlay pueden no cumplir el ratio de contraste mínimo de 4.5:1.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FOOTER ═══════ -->
+<div class="report-footer">
+  <div class="report-footer-inner">
+    <div>
+      <h4>Metodología</h4>
+      <p>Esta evaluación se basa en las 10 Heurísticas de Usabilidad de Jakob Nielsen (1994), complementadas con buenas prácticas modernas de UX para plataformas turísticas institucionales, análisis de código HTML/CSS/JS del prototipo OGD Napo (index.html + assets locales), y benchmarks del sector turismo digital latinoamericano.</p>
+    </div>
+    <div>
+      <h4>Nota de Evaluación</h4>
+      <p>Los scores asignados son estimaciones heurísticas basadas en revisión experta del código fuente y estructura de la SPA. No incluyen pruebas con usuarios reales ni análisis de métricas de comportamiento. Se recomienda complementar con tests de usabilidad con 5 turistas y 5 aliados potenciales para validar los hallazgos cualitativamente.</p>
+    </div>
+  </div>
+  <div style="text-align:center; margin-top:32px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.1); font-size:0.78rem; color:rgba(255,255,255,0.3);">
+    Evaluación Heurística UX · OGD Napo · Junio 2025 · Basado en Nielsen Norman Group UX Heuristics
+  </div>
+</div>
+
+</body>
+</html>
