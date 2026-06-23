@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OGD Napo – Organización de Gestión de Destinos Napo</title>
+<link href="https://fonts.googleapis.com/css2?family=Days+One&family=Josefin+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --purple: #2E2C8F;
+  --purple-light: #4845B5;
+  --purple-dark: #1a1860;
+  --white: #ffffff;
+  --gray-light: #f5f5f7;
+  --gray-mid: #e8e8ec;
+  --text-dark: #1a1a2e;
+  --text-mid: #444466;
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'Josefin Sans', sans-serif; color: var(--text-dark); overflow-x: hidden; }
+h1,h2,h3,h4 { font-family: 'Days One', sans-serif; }
+img { display: block; max-width: 100%; }
+a { text-decoration: none; color: inherit; }
+
+/* ===== NAV ===== */
+nav {
+  position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+  background: rgba(255,255,255,0.97);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(46,44,143,0.08);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.8rem 3rem;
+  box-shadow: 0 2px 20px rgba(46,44,143,0.07);
+}
+.nav-logo { display: flex; align-items: center; gap: 0.5rem; }
+.logo-svg { width: 80px; height: 48px; }
+.nav-links { display: flex; gap: 2.5rem; list-style: none; }
+.nav-links a {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.95rem; font-weight: 400; letter-spacing: 0.03em;
+  color: var(--text-dark); transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--purple); }
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+.hamburger span { display: block; width: 24px; height: 2px; background: var(--purple); border-radius: 2px; transition: all 0.3s; }
+
+/* ===== HERO ===== */
+#inicio {
+  position: relative; min-height: 100vh;
+  background: url('rio.gif') center/cover no-repeat;
+  display: flex; align-items: center;
+  overflow: hidden;
+}
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(10,8,60,0.72) 0%, rgba(10,8,60,0.38) 60%, transparent 100%);
+}
+.hero-content {
+  position: relative; z-index: 2; max-width: 520px;
+  padding: 8rem 0 4rem 5rem;
+  animation: fadeInUp 1s ease both;
+}
+.hero-content h1 {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  color: var(--white); letter-spacing: 0.04em;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.3);
+  margin-bottom: 1rem;
+}
+.hero-quote {
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-style: italic; font-weight: 600;
+  color: var(--white); margin-bottom: 1.4rem;
+  line-height: 1.4;
+}
+.hero-text { color: rgba(255,255,255,0.88); font-size: 0.95rem; line-height: 1.7; margin-bottom: 2rem; }
+.hero-sub { font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 0.8rem; }
+.btn-hero {
+  display: inline-block; background: var(--purple);
+  color: var(--white); font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.95rem; font-weight: 600;
+  padding: 0.85rem 2.4rem; border-radius: 40px;
+  letter-spacing: 0.05em; transition: all 0.3s;
+  box-shadow: 0 4px 20px rgba(46,44,143,0.4);
+}
+.btn-hero:hover { background: var(--purple-light); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(46,44,143,0.5); }
+
+/* wave divider */
+.wave-divider {
+  position: absolute; bottom: -1px; left: 0; width: 100%; z-index: 3;
+}
+.wave-divider svg { display: block; }
+
+/* ===== PROPÓSITO ===== */
+#proposito { background: var(--white); padding: 7rem 5% 5rem; position: relative; }
+.proposito-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;
+}
+.proposito-text h2 {
+  font-size: clamp(1.6rem, 3vw, 2.4rem); color: var(--purple);
+  margin-bottom: 1.5rem;
+}
+.proposito-text p { font-size: 0.95rem; line-height: 1.75; color: var(--text-mid); }
+.organic-img-wrap {
+  position: relative;
+}
+.organic-img-wrap img {
+  width: 100%; height: 420px; object-fit: cover;
+  clip-path: ellipse(48% 50% at 52% 50%);
+  border-radius: 60% 40% 55% 45% / 45% 55% 45% 55%;
+  filter: saturate(1.1);
+}
+
+/* ===== CÓMO LO HACEMOS ===== */
+#como { background: var(--white); padding: 4rem 5% 6rem; }
+.como-inner { max-width: 1100px; margin: 0 auto; }
+.como-inner h2 { font-size: clamp(1.3rem, 2.5vw, 2rem); color: var(--purple); margin-bottom: 3rem; }
+.pilares-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;
+}
+.pilar-card {
+  display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
+  cursor: pointer; transition: transform 0.3s;
+}
+.pilar-card:hover { transform: translateY(-6px); }
+.pilar-card .pilar-img-wrap {
+  width: 100%; aspect-ratio: 3/4;
+  border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+  overflow: hidden;
+}
+.pilar-card .pilar-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.pilar-card:hover .pilar-img-wrap img { transform: scale(1.05); }
+.pilar-card span { font-family: 'Josefin Sans', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--text-mid); letter-spacing: 0.04em; }
+
+/* ===== ESTRUCTURA ===== */
+#estructura { background: var(--white); padding: 6rem 5%; }
+.estructura-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;
+}
+/* SVG infographic */
+.infografia-wrap { display: flex; justify-content: center; }
+.infografia-wrap img { width: min(480px, 100%); height: auto; }
+
+/* nosotros side */
+.nosotros-side { padding-top: 2rem; }
+.nosotros-side .nosotros-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+.nosotros-side .nosotros-header h3 { font-size: 1.8rem; color: var(--purple); }
+.nosotros-side p { font-size: 0.93rem; line-height: 1.75; color: var(--text-mid); margin-bottom: 1rem; }
+
+/* ===== ¿QUIERES SER PARTE? ===== */
+#cambio { background: var(--gray-light); padding: 6rem 5%; }
+.cambio-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+}
+.cambio-text h2 { font-size: clamp(1.4rem, 2.5vw, 2rem); color: var(--purple); margin-bottom: 1.2rem; }
+.cambio-text p { font-size: 0.93rem; line-height: 1.75; color: var(--text-mid); margin-bottom: 2rem; }
+.btn-outline {
+  display: inline-block; border: 2px solid var(--purple);
+  color: var(--purple); font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.9rem; font-weight: 600;
+  padding: 0.75rem 2rem; border-radius: 40px;
+  letter-spacing: 0.04em; transition: all 0.3s;
+}
+.btn-outline:hover { background: var(--purple); color: var(--white); transform: translateY(-2px); }
+.cambio-img img {
+  width: 100%; height: 460px; object-fit: cover;
+  border-radius: 40% 60% 55% 45% / 50% 45% 55% 50%;
+  filter: saturate(1.05);
+}
+
+/* ===== PERFIL INTERÉS ===== */
+#perfil { background: var(--white); padding: 5rem 5%; text-align: center; }
+#perfil h2 { font-size: clamp(1.3rem, 2.5vw, 2rem); color: var(--text-dark); margin-bottom: 2.5rem; }
+.perfil-btns { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+.btn-perfil {
+  display: inline-block; border: 2px solid var(--purple);
+  color: var(--purple); font-family: 'Josefin Sans', sans-serif;
+  font-size: 1rem; font-weight: 600;
+  padding: 0.8rem 2.8rem; border-radius: 40px;
+  letter-spacing: 0.04em; cursor: pointer;
+  transition: all 0.3s; background: var(--white);
+}
+.btn-perfil:hover, .btn-perfil.active { background: var(--purple); color: var(--white); transform: translateY(-2px); }
+
+/* ===== EXPERIENCIAS ===== */
+#experiencias { background: var(--white); padding: 0; }
+.experiencias-hero {
+  position: relative; height: 60vh;
+  background: url('experiencia.jpg') center/cover no-repeat;
+}
+.experiencias-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to right, rgba(10,8,60,0.65) 0%, transparent 70%);
+}
+.experiencias-hero-content {
+  position: absolute; bottom: 3rem; left: 5%; max-width: 480px;
+  color: var(--white);
+}
+.experiencias-hero-content h2 { font-size: clamp(1.8rem, 4vw, 3rem); margin-bottom: 1rem; }
+.experiencias-hero-content p { font-size: 0.95rem; line-height: 1.7; opacity: 0.9; }
+
+.experiencias-wave {
+  position: relative; z-index: 1;
+  background: var(--white); margin-top: -2px;
+}
+.ejes-section { padding: 4rem 5% 2rem; }
+.ejes-section h3 { font-family: 'Josefin Sans', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--purple); margin-bottom: 3rem; }
+.ejes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem; max-width: 850px; margin: 0 auto 4rem; }
+.eje-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+  cursor: pointer; transition: transform 0.3s;
+  background: none; border: none; padding: 1rem 0.5rem;
+}
+.eje-btn:hover { transform: translateY(-6px); }
+.eje-btn .eje-icon-img { width: 250px; height: 250px; object-fit: contain; }
+.eje-btn span { font-family: 'Josefin Sans', sans-serif; font-weight: 700; color: var(--purple); font-size: 1.1rem; }
+
+/* Ejes cartilla (details sections) */
+.eje-cartilla {
+  display: none; max-width: 1000px; margin: 0 auto 4rem;
+  border-radius: 24px; overflow: hidden;
+  background: var(--gray-light);
+  grid-template-columns: 1fr 1fr;
+  gap: 0; animation: fadeInUp 0.4s ease;
+  box-shadow: 0 8px 40px rgba(46,44,143,0.1);
+}
+.eje-cartilla.open { display: grid; }
+.eje-cartilla-text { padding: 3rem; }
+.eje-cartilla-text .eje-icon-img { width: 48px; height: 48px; object-fit: contain; margin-bottom: 1rem; }
+.eje-cartilla-text h4 { font-size: 1.4rem; color: var(--purple); margin-bottom: 1rem; }
+.eje-cartilla-text p { font-size: 0.92rem; line-height: 1.75; color: var(--text-mid); margin-bottom: 0.8rem; }
+.eje-cartilla-img { position: relative; min-height: 320px; }
+.eje-cartilla-img img {
+  width: 100%; height: 100%; object-fit: cover;
+  border-radius: 20px 0 0 20px;
+}
+
+/* ===== ALIADOS ===== */
+#aliados { background: var(--white); padding: 0; }
+.aliados-hero {
+  position: relative; height: 55vh;
+  background: url('comedero.png') center/cover no-repeat;
+}
+.aliados-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to right, rgba(10,8,60,0.7) 0%, transparent 70%);
+}
+.aliados-hero-content {
+  position: absolute; bottom: 3rem; left: 5%;
+  color: var(--white); max-width: 480px;
+}
+.aliados-hero-content h2 { font-size: clamp(1.8rem, 4vw, 3rem); margin-bottom: 1rem; }
+.aliados-hero-content p { font-size: 0.95rem; line-height: 1.7; opacity: 0.9; }
+
+.aliados-types { padding: 5rem 5% 3rem; max-width: 900px; margin: 0 auto; }
+.aliados-types-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; text-align: center; }
+.aliado-type-card { padding: 1.5rem 1rem; }
+.aliado-type-icon { width: 64px; height: 64px; margin: 0 auto 1rem; color: var(--purple); }
+.aliado-type-card h4 { font-family: 'Josefin Sans', sans-serif; font-size: 1rem; font-weight: 700; color: var(--purple); margin-bottom: 0.5rem; }
+.aliado-type-divider { width: 100%; height: 2px; background: var(--purple); margin: 0.6rem 0 1rem; }
+.aliado-type-card p { font-size: 0.88rem; color: var(--text-mid); line-height: 1.6; }
+
+.aliados-equipo { padding: 3rem 5% 6rem; }
+.aliados-equipo h3 { font-family: 'Days One', sans-serif; font-size: 1.4rem; color: var(--purple); margin-bottom: 2.5rem; display: flex; align-items: center; gap: 0.8rem; }
+.aliados-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; max-width: 900px; }
+.aliado-card {
+  border-radius: 24px; overflow: hidden;
+  position: relative; aspect-ratio: 3/4;
+  cursor: pointer; transition: transform 0.3s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+.aliado-card:hover { transform: scale(1.03); }
+.aliado-card img { width: 100%; height: 100%; object-fit: cover; }
+.aliado-card-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(10,8,60,0.75) 0%, transparent 50%);
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 1.2rem;
+}
+.aliado-card-overlay h5 { color: var(--white); font-family: 'Josefin Sans', sans-serif; font-size: 0.95rem; font-weight: 700; }
+.aliado-card-overlay span { color: rgba(255,255,255,0.75); font-size: 0.8rem; }
+
+/* ===== REGISTRO / CONTACTO ===== */
+#contactos {
+  position: relative;
+  background: url('equipo.jpg') center/cover no-repeat;
+  min-height: 90vh; display: flex; align-items: center; justify-content: center;
+  padding: 5rem 1rem;
+}
+.contactos-overlay { position: absolute; inset: 0; background: rgba(10,8,60,0.4); }
+.contactos-form-wrap {
+  position: relative; z-index: 2;
+  background: rgba(220,218,240,0.88);
+  backdrop-filter: blur(10px);
+  border-radius: 50%;
+  width: min(520px, 90vw); aspect-ratio: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 3rem 3.5rem; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+.contactos-form-wrap h2 { font-size: 1.4rem; color: var(--purple); margin-bottom: 1.5rem; }
+.form-field {
+  width: 100%; background: var(--white); border-radius: 40px; border: none;
+  padding: 1rem 1.5rem; font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.9rem; color: var(--text-mid); outline: none; margin-bottom: 1rem;
+  transition: box-shadow 0.2s;
+}
+.form-field:focus { box-shadow: 0 0 0 2px var(--purple); }
+.btn-continuar {
+  width: 100%; background: var(--purple); color: var(--white);
+  border: none; border-radius: 40px; padding: 1rem;
+  font-family: 'Josefin Sans', sans-serif; font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; margin-bottom: 1rem; transition: all 0.3s; letter-spacing: 0.05em;
+}
+.btn-continuar:hover { background: var(--purple-light); transform: translateY(-2px); }
+.form-forgot { font-size: 0.85rem; color: var(--purple); font-weight: 700; cursor: pointer; }
+.form-register { margin-top: 0.8rem; font-size: 0.8rem; color: var(--text-mid); }
+.form-register a { color: var(--purple); font-weight: 700; cursor: pointer; }
+.form-success { display: none; color: var(--purple-dark); font-size: 0.92rem; font-weight: 600; line-height: 1.5; }
+
+/* ===== FOOTER ===== */
+footer { background: var(--purple); position: relative; padding: 4rem 5% 2.5rem; }
+.footer-wave { position: absolute; top: -1px; left: 0; width: 100%; }
+.footer-wave svg { display: block; }
+.footer-inner {
+  position: relative; z-index: 1;
+  display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;
+  padding-top: 2rem;
+}
+.footer-item { display: flex; align-items: center; gap: 0.7rem; color: var(--white); font-size: 0.9rem; }
+.footer-item .footer-icon { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
+.footer-bottom { text-align: center; margin-top: 2rem; color: rgba(255,255,255,0.4); font-size: 0.75rem; padding-bottom: 1rem; }
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  nav { padding: 0.8rem 1.5rem; }
+  .nav-links { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; background: var(--white); padding: 1rem 2rem; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+  .nav-links.open { display: flex; }
+  .hamburger { display: flex; }
+  .hero-content { padding: 7rem 1.5rem 4rem; }
+  .proposito-inner, .estructura-inner, .cambio-inner { grid-template-columns: 1fr; }
+  .organic-img-wrap img { height: 300px; }
+  .pilares-grid { grid-template-columns: repeat(2, 1fr); }
+  .ejes-grid { grid-template-columns: repeat(2, 1fr); }
+  .eje-cartilla { grid-template-columns: 1fr; }
+  .eje-cartilla-img img { border-radius: 0 0 20px 20px; min-height: 220px; }
+  .aliados-types-grid { grid-template-columns: 1fr; }
+  .aliados-grid { grid-template-columns: repeat(2, 1fr); }
+  .contactos-form-wrap { border-radius: 24px; aspect-ratio: auto; width: 90%; padding: 2.5rem 2rem; }
+}
+@media (max-width: 500px) {
+  .pilares-grid { grid-template-columns: repeat(2, 1fr); }
+  .ejes-grid { grid-template-columns: repeat(2, 1fr); }
+  .aliados-grid { grid-template-columns: 1fr; }
+  .footer-inner { gap: 1.5rem; flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#inicio">
+    <img src="logo.png" alt="OGD Napo - Organización de Gestión de Destinos Napo" style="height: 125px; width: auto;">
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#inicio" onclick="closeNav()">Inicio</a></li>
+    <li><a href="#estructura" onclick="closeNav()">Estructura</a></li>
+    <li><a href="#experiencias" onclick="closeNav()">Experiencias</a></li>
+    <li><a href="#aliados" onclick="closeNav()">Aliados</a></li>
+    <li><a href="#contactos" onclick="closeNav()">Contactos</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="inicio">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1>SOMOS NAPO</h1>
+    <p class="hero-quote">"Napo no es solo un viaje; es la aventura de tu vida."</p>
+    <p class="hero-text">Si buscas un lugar donde la naturaleza y las tradiciones viven, Napo es tu destino. Sumérgete en el corazón de la Amazonia ecuatoriana, el lugar más megadiverso del planeta, donde cada rincón es una obra de arte natural. Si eres amante de la adrenalina, aquí podrás desafiar los ríos más imponentes en kayak o rafting, y explorar senderos ocultos en la selva profunda.</p>
+    <p class="hero-sub">Conoce más sobre nosotros:</p>
+    <a href="#estructura" class="btn-hero">Estructura</a>
+  </div>
+  <div class="wave-divider">
+    <svg viewBox="0 0 1440 90" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0,60 C240,10 480,90 720,50 C960,10 1200,80 1440,40 L1440,90 L0,90 Z" fill="#ffffff"/>
+    </svg>
+  </div>
+</section>
+
+<!-- PROPÓSITO -->
+<section id="proposito">
+  <div class="proposito-inner">
+    <div class="proposito-text reveal">
+      <h2>¿Cuál es nuestro propósito?</h2>
+      <p>Somos una comunidad de personas apasionadas que creen en el poder de la colaboración para transformar el turismo. La OGD Napo nace hace más de 10 años como el puente definitivo entre todos los actores de la provincia para diseñar un modelo de viaje más consciente, ordenado y único.</p>
+    </div>
+    <div class="organic-img-wrap reveal">
+      <img src="escalador.png" alt="Explorador en la Amazonia de Napo">
+    </div>
+  </div>
+</section>
+
+<!-- CÓMO LO HACEMOS -->
+<section id="como">
+  <div class="como-inner">
+    <h2 class="reveal">¿Cómo lo hacemos?</h2>
+    <div class="pilares-grid">
+      <div class="pilar-card reveal">
+        <div class="pilar-img-wrap">
+          <img src="limpia.png" alt="Institucionalidad">
+        </div>
+        <span>Institucionalidad</span>
+      </div>
+      <div class="pilar-card reveal">
+        <div class="pilar-img-wrap">
+          <img src="rio.gif" alt="Transparencia">
+        </div>
+        <span>Transparencia</span>
+      </div>
+      <div class="pilar-card reveal">
+        <div class="pilar-img-wrap">
+          <img src="cacao.png" alt="Sostenibilidad">
+        </div>
+        <span>Sostenibilidad</span>
+      </div>
+      <div class="pilar-card reveal">
+        <div class="pilar-img-wrap">
+          <img src="cafe.png" alt="Colaboración">
+        </div>
+        <span>Colaboración</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ESTRUCTURA -->
+<section id="estructura">
+  <div class="estructura-inner">
+    <!-- Infografía floral -->
+    <div class="infografia-wrap reveal">
+      <img src="infografía flor.png" alt="Diagrama floral de la estructura OGD Napo">
+    </div>
+    <!-- Nosotros -->
+    <div class="nosotros-side reveal">
+      <div class="nosotros-header">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="8" y="4" width="24" height="32" rx="3" stroke="#2E2C8F" stroke-width="2.5" fill="none"/>
+          <line x1="14" y1="12" x2="26" y2="12" stroke="#2E2C8F" stroke-width="2"/>
+          <line x1="14" y1="18" x2="26" y2="18" stroke="#2E2C8F" stroke-width="2"/>
+          <line x1="14" y1="24" x2="20" y2="24" stroke="#2E2C8F" stroke-width="2"/>
+          <path d="M28 28 L40 40" stroke="#2E2C8F" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="34" cy="34" r="8" stroke="#2E2C8F" stroke-width="2.5" fill="none"/>
+        </svg>
+        <h3>Nosotros</h3>
+      </div>
+      <p>Nuestro equipo nace con una misión clara y unificada: transformar la gestión turística de la provincia para ofrecerte un destino ordenado, sostenible y verdaderamente único.</p>
+      <p>Entendemos que viajar es mucho más que visitar un lugar; es conectar con la esencia de un territorio. Por eso, trabajamos incansablemente para que tu experiencia al visitar Napo sea perfecta de principio a fin, permitiéndote conocer e integrarte de manera auténtica en cada rincón, comunidad y secreto que resguarda nuestra maravillosa provincia Amazónica.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ¿QUIERES SER PARTE? -->
+<section id="cambio">
+  <div class="cambio-inner">
+    <div class="cambio-text reveal">
+      <h2>¿Quieres ser parte del cambio?</h2>
+      <p>La OGD Napo es una plataforma abierta a todos los actores que desean sumar al desarrollo turístico provincial. Si eres parte del sector turístico y deseas conocer los requisitos, beneficios y procedimientos para integrarte a nuestra organización, te invitamos a consultar la Ordenanza de Creación y Funcionamiento de la OGD Napo. Allí encontrarás los lineamientos legales y los pasos detallados para formalizar tu participación y contribuir al fortalecimiento de nuestro destino.</p>
+      <a href="#" class="btn-outline">Ordenanza de Napo</a>
+    </div>
+    <div class="cambio-img reveal">
+      <img src="cueva 2.png" alt="Explorador en cueva de la Amazonia">
+    </div>
+  </div>
+</section>
+
+<!-- PERFIL DE INTERÉS -->
+<section id="perfil">
+  <h2 class="reveal">¿Cuál es tu perfil de interés?</h2>
+  <div class="perfil-btns reveal">
+    <button class="btn-perfil" onclick="filterProfile('turismo')">Turismo</button>
+    <button class="btn-perfil" onclick="filterProfile('aliados')">Aliados</button>
+  </div>
+</section>
+
+<!-- EXPERIENCIAS -->
+<section id="experiencias">
+  <div class="experiencias-hero">
+    <div class="experiencias-hero-overlay"></div>
+    <div class="experiencias-hero-content">
+      <h2>Experiencias</h2>
+      <p>Creemos en un turismo que transforma y conecta. Por eso, nuestro propósito es acompañarte a descubrir el lado más auténtico de la naturaleza, respetando su entorno y rescatando el valor de nuestra gente. Explorar cada rincón de la provincia. Desde la adrenalina de la aventura hasta la sabiduría de nuestras tradiciones, aquí encontrarás experiencias exclusivas que solo existen en este rincón del mundo.</p>
+    </div>
+  </div>
+  <div style="background:white;">
+    <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="display:block;margin-top:-1px;">
+      <path d="M0,0 C360,60 1080,0 1440,50 L1440,0 Z" fill="white"/>
+    </svg>
+  </div>
+  <div class="ejes-section">
+    <h3>Explora nuestros 6 ejes turísticos:</h3>
+    <div class="ejes-grid">
+      <!-- Saberes -->
+      <button class="eje-btn" onclick="openEje('saberes')">
+        <img class="eje-icon-img" src="pictograma Aventura saberes.png" alt="Saberes">
+        <span>Saberes</span>
+      </button>
+      <!-- Aventura -->
+      <button class="eje-btn" onclick="openEje('aventura')">
+        <img class="eje-icon-img" src="pictograma Aventura.png" alt="Aventura">
+        <span>Aventura</span>
+      </button>
+      <!-- Geoaventura -->
+      <button class="eje-btn" onclick="openEje('geoaventura')">
+        <img class="eje-icon-img" src="cosas para la web figma 3.png" alt="Geoaventura">
+        <span>Geoaventura</span>
+      </button>
+      <!-- Agua -->
+      <button class="eje-btn" onclick="openEje('agua')">
+        <img class="eje-icon-img" src="pictograma agua.png" alt="Agua">
+        <span>Agua</span>
+      </button>
+      <!-- Aves -->
+      <button class="eje-btn" onclick="openEje('aves')">
+        <img class="eje-icon-img" src="pictograma Aventura aves.png" alt="Aves">
+        <span>Aves</span>
+      </button>
+      <!-- Chakra -->
+      <button class="eje-btn" onclick="openEje('chakra')">
+        <img class="eje-icon-img" src="pictograma Aventura chacra.png" alt="Chakra">
+        <span>Chakra y chocolate</span>
+      </button>
+    </div>
+
+    <!-- Cartillas -->
+    <div class="eje-cartilla" id="eje-saberes">
+      <div class="eje-cartilla-text">
+        <img class="eje-icon-img" src="pictograma Aventura saberes.png" alt="Saberes">
+        <h4>Saberes</h4>
+        <p>Descubre la magia de la Amazonia en Napo, donde podrás recorrer senderos llenos de biodiversidad, explorar cuevas milenarias y navegar ríos de aguas cristalinas. Es el escenario perfecto para practicar senderismo, kayak o simplemente contemplar paisajes únicos.</p>
+        <p>Al visitar estos espacios sagrados, te invitamos a practicar un turismo consciente y respetuoso: cuida la flora y fauna local, no dejes residuos y valora la tranquilidad de este ecosistema único.</p>
+        <p>¡Explora Napo con responsabilidad!</p>
+      </div>
+      <div class="eje-cartilla-img">
+        <img src="limpia.png" alt="Saberes amazónicos">
+      </div>
+    </div>
+
+    <div class="eje-cartilla" id="eje-aventura">
+      <div class="eje-cartilla-text">
+        <img class="eje-icon-img" src="pictograma Aventura.png" alt="Aventura">
+        <h4>Aventura</h4>
+        <p>Napo es el paraíso de la adrenalina. Desafía las aguas bravas del río Napo en rafting, practica canopy entre las copas de los árboles, o siente la emoción del trekking en la selva amazónica.</p>
+        <p>Cada experiencia de aventura está diseñada para conectarte con la naturaleza de una manera que pocas regiones del mundo pueden ofrecer. Operadores locales certificados garantizan tu seguridad mientras descubres lo extraordinario.</p>
+      </div>
+      <div class="eje-cartilla-img">
+        <img src="rio 2.jpg" alt="Aventura en Napo">
+      </div>
+    </div>
+
+    <div class="eje-cartilla" id="eje-geoaventura">
+      <div class="eje-cartilla-text">
+        <img class="eje-icon-img" src="cosas para la web figma 3.png" alt="Geoaventura">
+        <h4>Geoaventura</h4>
+        <p>La provincia de Napo esconde una geología fascinante. Explora formaciones rocosas únicas, cuevas subterráneas y paisajes volcánicos que narran millones de años de historia natural.</p>
+        <p>La Geoaventura te invita a descubrir el tiempo profundo de la Tierra en cada piedra, cada caverna y cada valle formado por los ríos amazónicos. Una experiencia que combina ciencia, naturaleza y asombro.</p>
+      </div>
+      <div class="eje-cartilla-img">
+        <img src="cueba interna.png" alt="Geoaventura Napo">
+      </div>
+    </div>
+
+    <div class="eje-cartilla" id="eje-agua">
+      <div class="eje-cartilla-text">
+        <img class="eje-icon-img" src="pictograma agua.png" alt="Agua">
+        <h4>Agua</h4>
+        <p>Desde la adrenalina pura al descender por los ríos más limpios y caudalosos de la Amazonia en rafting o kayak, hasta la paz absoluta de conectar con cascadas sagradas ocultas en la selva, este eje te invita a sumergirte en el origen de la biodiversidad.</p>
+        <p>Es un viaje para refrescar el alma, sentir la fuerza de la naturaleza y descubrir el recurso más sagrado de nuestra tierra.</p>
+      </div>
+      <div class="eje-cartilla-img">
+        <img src="gua 4.jpg" alt="Agua y cascadas en Napo">
+      </div>
+    </div>
+
+    <div class="eje-cartilla" id="eje-aves">
+      <div class="eje-cartilla-text">
+        <img class="eje-icon-img" src="pictograma Aventura aves.png" alt="Aves">
+        <h4>Aves</h4>
+        <p>Napo es uno de los territorios con mayor diversidad de aves del planeta. Con más de 600 especies registradas, esta provincia es el destino soñado para el aviturismo a nivel mundial.</p>
+        <p>Desde el majestuoso Harpy Eagle hasta el colorido Cock-of-the-Rock, cada amanecer en la selva amazónica se convierte en un concierto visual y auditivo sin igual. Guías locales especializados te acompañarán en esta experiencia única.</p>
+      </div>
+      <div class="eje-cartilla-img">
+        <img src="comedero.png" alt="Aves de Napo">
+      </div>
+    </div>
+
+    <div class="eje-cartilla" id="eje-chakra">
+      <div class="eje-cartilla-text">
+        <img class="eje-icon-img" src="pictograma Aventura chacra.png" alt="Chakra">
+        <h4>Chakra y Chocolate</h4>
+        <p>La chakra es el jardín productivo del pueblo Kichwa, un espacio sagrado donde conviven plantas medicinales, árboles frutales y el cacao amazónico de origen. Visitar una chakra es sumergirse en la cosmovisión y filosofía de vida de nuestros pueblos ancestrales.</p>
+        <p>El cacao fino de aroma de Napo es reconocido mundialmente. Aquí podrás seguir todo el proceso, desde la semilla hasta el chocolate artesanal, conectando con los saberes milenarios de nuestras comunidades.</p>
+      </div>
+      <div class="eje-cartilla-img">
+        <img src="cacao.png" alt="Chakra y Chocolate">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ALIADOS -->
+<section id="aliados">
+  <div class="aliados-hero">
+    <div class="aliados-hero-overlay"></div>
+    <div class="aliados-hero-content">
+      <h2>ÚNETE AL PROYECTO</h2>
+      <p>Sé parte del comienzo y juntos busquemos un cambio; cada día somos más personas interesadas en formar parte, por que Napo ama la vida.</p>
+    </div>
+  </div>
+  <div style="background:white; margin-top:-2px;">
+    <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="display:block;">
+      <path d="M0,50 C360,0 1080,60 1440,10 L1440,0 L0,0 Z" fill="white"/>
+    </svg>
+  </div>
+
+  <div class="aliados-types">
+    <div class="aliados-types-grid reveal">
+      <div class="aliado-type-card">
+        <svg class="aliado-type-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="16" r="10" stroke="currentColor" stroke-width="2.5"/>
+          <path d="M12 52 C12 40 20 34 32 34 C44 34 52 40 52 52" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M32 6 Q36 10 32 14 Q28 10 32 6Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        </svg>
+        <h4>Emprendedores</h4>
+        <div class="aliado-type-divider"></div>
+        <p>Aumentando cada día el valor de nuestros equipos y el desarrollo del sector local.</p>
+      </div>
+      <div class="aliado-type-card">
+        <svg class="aliado-type-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="18" r="8" stroke="currentColor" stroke-width="2.5"/>
+          <circle cx="44" cy="18" r="8" stroke="currentColor" stroke-width="2.5"/>
+          <path d="M4 52 C4 42 12 36 20 36" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M44 36 C52 36 60 42 60 52" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M20 36 C24 44 40 44 44 36" stroke="currentColor" stroke-width="2" fill="none"/>
+        </svg>
+        <h4>Pares estratégicos</h4>
+        <div class="aliado-type-divider"></div>
+        <p>Ayudando a optimizar los recursos técnicos y la gestión de cada proyecto.</p>
+      </div>
+      <div class="aliado-type-card">
+        <svg class="aliado-type-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="20" width="44" height="30" rx="4" stroke="currentColor" stroke-width="2.5" fill="none"/>
+          <path d="M10 28 L54 28" stroke="currentColor" stroke-width="2"/>
+          <path d="M22 20 L22 14 L42 14 L42 20" stroke="currentColor" stroke-width="2.5" fill="none"/>
+          <circle cx="32" cy="40" r="6" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <h4>Academias</h4>
+        <div class="aliado-type-divider"></div>
+        <p>Un lazo cercano y ordenado para impulsar un turismo consciente.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="aliados-equipo">
+    <h3 class="reveal">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 28 C8 20 14 16 20 16 C26 16 32 20 32 28" stroke="#2E2C8F" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M14 12 C12 8 16 4 20 6 C24 4 28 8 26 12" stroke="#2E2C8F" stroke-width="2" fill="none"/>
+        <circle cx="20" cy="10" r="4" stroke="#2E2C8F" stroke-width="2" fill="none"/>
+      </svg>
+      Aliados del equipo
+    </h3>
+    <div class="aliados-grid reveal">
+      <div class="aliado-card">
+        <img src="hotel.jpg" alt="Maria Jose Hotel">
+        <div class="aliado-card-overlay">
+          <h5>Maria Jose Hotel</h5>
+          <span>Hotel</span>
+        </div>
+      </div>
+      <div class="aliado-card">
+        <img src="guia.jpg" alt="Stiven Vinuesa Guias">
+        <div class="aliado-card-overlay">
+          <h5>Stiven Vinuesa</h5>
+          <span>Guias</span>
+        </div>
+      </div>
+      <div class="aliado-card">
+        <img src="restaurante.jpg" alt="Josue Camisán Restaurante">
+        <div class="aliado-card-overlay">
+          <h5>Josue Camisán</h5>
+          <span>Restaurante</span>
+        </div>
+      </div>
+      <div class="aliado-card">
+        <img src="hotel 2.jpg" alt="Maximo Estrada Hotel">
+        <div class="aliado-card-overlay">
+          <h5>Maximo Estrada</h5>
+          <span>Hotel</span>
+        </div>
+      </div>
+      <div class="aliado-card">
+        <img src="guia 2.jpg" alt="Michael Fulano Guias">
+        <div class="aliado-card-overlay">
+          <h5>Michael Fulano</h5>
+          <span>Guias</span>
+        </div>
+      </div>
+      <div class="aliado-card">
+        <img src="restaurante 2.jpg" alt="Damian Torrres Restaurante">
+        <div class="aliado-card-overlay">
+          <h5>Damian Torrres</h5>
+          <span>Restaurante</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTOS / REGISTRO -->
+<section id="contactos">
+  <div class="contactos-overlay"></div>
+  <div class="contactos-form-wrap">
+    <div id="formContent">
+      <h2>¡Bienvenido al equipo!</h2>
+      <input class="form-field" type="text" id="formUser" placeholder="Nombre de usuario o correo electronico">
+      <input class="form-field" type="password" id="formPass" placeholder="Contraseña">
+      <button class="btn-continuar" onclick="handleLogin()">Continuar</button>
+      <p class="form-forgot">¿Olvidaste tu contraseña?</p>
+      <p class="form-register">¿No tienes cuenta? <a onclick="handleRegister()">Registrarse</a></p>
+    </div>
+    <div class="form-success" id="formSuccess">
+      ✅ Registro exitoso. Esta es una demostración de acceso para futuros aliados.
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-wave">
+    <svg viewBox="0 0 1440 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0,60 C320,110 640,20 960,70 C1120,95 1280,40 1440,60 L1440,0 L0,0 Z" fill="white"/>
+    </svg>
+  </div>
+  <div class="footer-inner">
+    <div class="footer-item">
+      <img class="footer-icon" src="correo.png" alt="Email">
+      <span>capturnapo@gmail.com</span>
+    </div>
+    <div class="footer-item">
+      <img class="footer-icon" src="pintograma info telefono.png" alt="Teléfono">
+      <span>099969800</span>
+    </div>
+    <div class="footer-item">
+      <img class="footer-icon" src="ubicacion picto.png" alt="Ubicación">
+      <span>Napo, Ecuador</span>
+    </div>
+    <div class="footer-item">
+      <img class="footer-icon" src="facebook picto.png" alt="Facebook">
+      <span>Facebook</span>
+    </div>
+  </div>
+  <p class="footer-bottom">© 2024 OGD Napo – Organización de Gestión de Destinos Napo</p>
+</footer>
+
+<script>
+// NAV
+function toggleNav() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+function closeNav() {
+  document.getElementById('navLinks').classList.remove('open');
+}
+
+// SCROLL REVEAL
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); }
+  });
+}, { threshold: 0.12 });
+reveals.forEach(r => observer.observe(r));
+
+// EJES – open/close cartillas
+let currentEje = null;
+function openEje(eje) {
+  const id = 'eje-' + eje;
+  if (currentEje && currentEje !== id) {
+    document.getElementById(currentEje).classList.remove('open');
+  }
+  const el = document.getElementById(id);
+  if (el.classList.contains('open')) {
+    el.classList.remove('open');
+    currentEje = null;
+  } else {
+    el.classList.add('open');
+    currentEje = id;
+    setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  }
+}
+
+// PERFIL filter (visual only)
+function filterProfile(type) {
+  document.querySelectorAll('.btn-perfil').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  if (type === 'turismo') {
+    document.getElementById('experiencias').scrollIntoView({ behavior: 'smooth' });
+  } else {
+    document.getElementById('aliados').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+// FORM
+function handleLogin() {
+  document.getElementById('formContent').style.display = 'none';
+  document.getElementById('formSuccess').style.display = 'block';
+}
+function handleRegister() {
+  document.getElementById('formContent').style.display = 'none';
+  document.getElementById('formSuccess').style.display = 'block';
+}
+</script>
+</body>
+</html>
